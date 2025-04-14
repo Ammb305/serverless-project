@@ -12,7 +12,7 @@ const saltRounds = 10;
 
 const health = async (req, res) => {
     res.status(200);
-    res.send({"Status": 200, "Message": "Server is up and running."});
+    res.send({"Status": 200, "Message": "Server is up and running successfully."});
 }
 
 const getUser = async (req, res) => {
