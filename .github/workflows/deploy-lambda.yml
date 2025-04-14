@@ -1,0 +1,49 @@
+name: Deploy Lambda Function
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow on pushes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: |
+        cd serverless-api
+        npm install
+
+
+    # Step 5: Package the Lambda function
+    - name: Package Lambda function
+      run: |
+        cd serverless-api
+        zip -r ../lambda_function.zip . -x "*.git*" "*.github/*" "node_modules/*" "*.DS_Store"
+
+    # Step 6: Configure AWS credentials
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    # Step 7: Deploy to AWS Lambda
+    - name: Deploy Lambda function
+      run: |
+        aws lambda update-function-code \
+          --function-name serverless_api \
+          --zip-file fileb://lambda_function.zip
